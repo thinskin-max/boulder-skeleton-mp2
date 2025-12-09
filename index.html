@@ -3,101 +3,97 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Boulder Skeleton — MediaPipe 2 Edition</title>
+<title>Boulder Skeleton — MP2 Edition</title>
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css" />
 
-<!-- MediaPipe 2 Vision Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.6/vision_bundle.js"
+<!-- MediaPipe 2 bundle -->
+<script src="https://storage.googleapis.com/mediapipe-tasks/vision/0.10.6/vision_bundle.js"
         onload="window._mp2_ready = true;"></script>
 
 </head>
+
 <body>
 <header>
-  <strong>Boulder Skeleton — MP2 Edition</strong>
+  <strong>Climbing Skeleton — MP2 Edition</strong>
   <span class="badge" id="diag">初始化中…</span>
 
   <div class="kpi">
     <span>FPS: <b id="fps">0</b></span>
     <span>Frames: <b id="frames">0</b></span>
     <span>
-      進度：
-      <progress id="prog" max="1" value="0"></progress>
+      進度：<progress id="prog" max="1" value="0"></progress>
       <b id="tprog">0:00 / 0:00</b>
     </span>
   </div>
 </header>
 
-<!-- Layout -->
 <div class="layout">
 
-  <!-- Left Panel -->
-  <section>
-    <div class="pane-head">1) Upload → 2) START → 3) STOP → 4) ZIP</div>
+<section>
+  <div class="pane-head">
+    <div>1) Upload → 2) 啟動 Overlay → 3) START → 4) STOP → 5) ZIP</div>
+  </div>
 
-    <div class="pane-body">
+  <div class="pane-body">
 
-      <!-- Upload -->
-      <div class="row">
-        <label class="fileBtn">Upload
-          <input id="file" type="file" accept="video/*">
-        </label>
+    <div class="row">
+      <label class="fileBtn">Upload
+        <input id="file" type="file" accept="video/*">
+      </label>
 
-        <select id="modelSel">
-          <option value="lite">lite（最快）</option>
-          <option value="full" selected>full（均衡）</option>
-          <option value="heavy">heavy（最高精度）</option>
-        </select>
-      </div>
-
-      <!-- Controls -->
-      <div class="row">
-        <label><input id="recToggle" type="checkbox"> Overlay 錄影</label>
-
-        <button id="startBtn">START</button>
-        <button id="pauseBtn">STOP</button>
-
-        <button id="fullscreenBtn">📺 全螢幕</button>
-        <button id="fsExitBtn">✕ 退出</button>
-      </div>
-
-      <!-- Zip -->
-      <div class="row">
-        <input id="zipName" type="text" placeholder="輸入檔名" />
-        <button id="saveZipBtn" disabled>Download ZIP</button>
-      </div>
-
-      <div class="row">
-        <button id="cameraBtn">攝像頭</button>
-        <button id="stopCameraBtn">關閉攝像頭</button>
-      </div>
-
-      <!-- Media -->
-      <div id="mediaGrid" class="media-grid">
-        <div class="origWrap"><video id="video" playsinline muted></video></div>
-        <div class="overlayWrap"><canvas id="canvas"></canvas></div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Right Panel -->
-  <aside>
-    <div class="pane-head">
-      <div>狀態 / 日誌</div>
-      <button id="selftestBtn">自檢</button>
+      <select id="modelSel">
+        <option value="lite">Model: lite（最快）</option>
+        <option value="full" selected>Model: full（均衡）</option>
+        <option value="heavy">Model: heavy（最高精度）</option>
+      </select>
     </div>
 
-    <div class="pane-body">
-      <div class="log" id="log">等待輸出…</div>
+    <div class="row">
+      <label><input id="recToggle" type="checkbox"> 啟動 Overlay</label>
+
+      <button id="startBtn">START</button>
+      <button id="pauseBtn">STOP</button>
+
+      <button id="colorBtn">🎨 Skeleton Color</button>
+      <input type="color" id="colorPicker" style="display:none" value="#FFD72D">
+
+      <button id="fullscreenBtn">📺 全螢幕</button>
+      <button id="fsExitBtn">✕ 退出</button>
     </div>
-  </aside>
+
+    <div class="row">
+      <input id="zipName" type="text" placeholder="輸入檔名（可留空）"/>
+      <button id="saveZipBtn">Download ZIP</button>
+    </div>
+
+    <div class="row">
+      <button id="cameraBtn">開攝像頭 (for PC)</button>
+      <button id="stopCameraBtn">關攝像頭 (for PC)</button>
+    </div>
+
+    <div class="media-grid" id="mediaGrid">
+      <div class="origWrap"><video id="video" playsinline muted></video></div>
+      <div class="overlayWrap"><canvas id="canvas"></canvas></div>
+    </div>
+
+  </div>
+</section>
+
+<aside>
+  <div class="pane-head">
+    <div>狀態 / 日誌</div>
+    <button id="selftestBtn">自檢</button>
+  </div>
+  <div class="pane-body">
+    <div class="log" id="log">等待輸出…</div>
+  </div>
+</aside>
 
 </div>
 
-<!-- Load UI Controller -->
+<!-- JS modules -->
 <script type="module" src="js/ui.js"></script>
 
 </body>
 </html>
-
