@@ -1,12 +1,13 @@
 /* ============================================================================
-   Boulder Skeleton — MP2 Edition
-   ui.js — UI events + module orchestration (corrected version)
+   ui.js — Main UI Controller for Boulder Skeleton MP2 Edition
 ============================================================================ */
 
 import { loadMP2 } from "./mp2-loader.js";
 import { initMP2Detector, startDetect, stopDetect } from "./mp2-detector.js";
-import { Recorder } from "./recorder.js";
-import { Exporter } from "./exporter.js";
+import { startRecording, stopRecording } from "./recorder.js";
+import { exportZip } from "./exporter.js";
+import { drawSkeleton, hookSkeletonColor, fitCanvasToVideo } from "./draw.js";
+
 
 /* DOM Helpers */
 const $ = (id) => document.getElementById(id);
@@ -166,4 +167,5 @@ stopBtn.onclick = async () => {
 saveZipBtn.onclick = () => {
   Exporter.export(zipNameInput.value, can);
 };
+
 
