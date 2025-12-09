@@ -1,0 +1,303 @@
+/* ============================================================
+   🎬 Stranger Things Theme — Boulder Skeleton MP2 Edition
+   ============================================================ */
+:root{
+  --bg:#050505;
+  --card:#0d0d0f;
+  --line:#2a2a33;
+  --ink:#e6e6e6;
+  --muted:#7a8a9e;
+  --accent:#d2de30;
+  --accent-glow:#f97000;
+  --cyber:#0affff;
+  --side-w:320px;
+}
+
+/* Reset */
+* {
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* ============================================================
+   VHS Scanlines + Noise Overlay
+   ============================================================ */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.05) 0px,
+    rgba(255,255,255,0.05) 1px,
+    rgba(0,0,0,0.05) 2px
+  );
+  opacity:.20;
+  z-index:999;
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.08;
+  z-index:998;
+  background-image:url("https://grainy-gradients.vercel.app/noise.svg");
+  background-size:300px;
+}
+
+/* ============================================================
+   Header
+   ============================================================ */
+header{
+  padding:12px;
+  border-bottom:1px solid var(--accent);
+  background:#0b0b0c;
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  align-items:center;
+}
+header strong{
+  color:var(--accent);
+  text-shadow:0 0 6px var(--accent-glow);
+}
+.badge{
+  font-size:12px;
+  color:var(--cyber);
+  opacity:.9;
+}
+
+/* KPI */
+.kpi{
+  display:flex;
+  gap:12px;
+  font-size:12px;
+  color:var(--muted);
+}
+progress{
+  height:10px;
+  accent-color:var(--cyber);
+}
+
+/* ============================================================
+   Layout (Main)
+   ============================================================ */
+.layout{
+  display:grid;
+  grid-template-columns:1fr var(--side-w);
+  gap:16px;
+  padding:16px;
+}
+@media(max-width:900px){
+  .layout{
+    grid-template-columns:1fr;
+  }
+  aside{
+    order:2;
+  }
+}
+
+/* ============================================================
+   Panels
+   ============================================================ */
+section,aside{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  position:relative;
+}
+
+.pane-head{
+  padding:10px 14px;
+  border-bottom:1px solid var(--line);
+  font-weight:600;
+  display:flex;
+  justify-content:space-between;
+  background:#0f0f12;
+  color:var(--accent);
+}
+
+.pane-body{
+  padding:12px;
+  z-index:10;
+  position:relative;
+}
+
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+}
+
+/* ============================================================
+   Buttons / Inputs
+   ============================================================ */
+button,
+input[type=file],
+select,
+input[type=text]{
+  background:#16161a;
+  border:1px solid var(--line);
+  color:var(--ink);
+  padding:8px 12px;
+  font-size:13px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:all .15s;
+}
+
+button:hover,
+select:hover{
+  background:#1e1e23;
+  border-color:var(--accent);
+  color:var(--accent);
+  text-shadow:0 0 4px var(--accent-glow);
+}
+
+/* Upload Button */
+.fileBtn{
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  background:#16161a;
+  border:1px solid var(--line);
+  border-radius:10px;
+  height:33.5px;
+  padding:0 12px;
+  flex:1 1 auto;
+  max-width:25%;
+}
+.fileBtn input[type=file]{
+  position:absolute;
+  inset:0;
+  opacity:0;
+}
+
+/* Text Input */
+input[type=text]{
+  cursor:text;
+  min-width:160px;
+}
+
+/* ============================================================
+   Media (video + canvas)
+   ============================================================ */
+video,
+canvas{
+  max-width:100%;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:#000;
+  display:block;
+}
+
+.media-grid{
+  display:grid;
+  gap:10px;
+  position:relative;
+  z-index:20;
+}
+
+.landscape .media-grid{
+  grid-template-columns:1fr;
+  grid-template-areas:
+    "orig"
+    "overlay";
+}
+
+.portrait .media-grid{
+  grid-template-columns:1fr 1fr;
+  grid-template-areas:"orig overlay";
+  align-items:start;
+}
+
+.origWrap{grid-area:orig;}
+.overlayWrap{grid-area:overlay;}
+
+/* ============================================================
+   Log Panel
+   ============================================================ */
+.log{
+  font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:11px;
+  background:#0f0f12;
+  border:1px solid var(--line);
+  padding:8px;
+  border-radius:8px;
+  max-height:200px;
+  overflow:auto;
+  color:var(--cyber);
+  white-space:pre-wrap;
+  box-shadow:0 0 12px rgba(255,0,60,.25);
+}
+
+.ok{color:#4cffd2;}
+.warn{color:#ffd37a;}
+.err{color:#ff4d4d;}
+
+/* ============================================================
+   iOS Fullscreen Simulation
+   ============================================================ */
+body.ios-fullscreen{
+  position:fixed;
+  inset:0;
+  background:#000;
+  z-index:9999;
+  overflow:hidden;
+}
+
+body.ios-fullscreen .layout{
+  width:100vw;
+  height:100vh;
+  padding:0;
+  margin:0;
+}
+
+body.ios-fullscreen .media-grid{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+body.ios-fullscreen video,
+body.ios-fullscreen canvas{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100vw!important;
+  height:100vh!important;
+  object-fit:contain;
+  border:none!important;
+}
+
+#fsExitBtn{
+  position:fixed;
+  right:12px;
+  top:12px;
+  z-index:10001;
+  display:none;
+  padding:10px 12px;
+  border-radius:10px;
+  background:#1a1d24;
+  color:#fff;
+  border:1px solid #2a2f3a;
+}
+
+body.ios-fullscreen #fsExitBtn{
+  display:block;
+}
