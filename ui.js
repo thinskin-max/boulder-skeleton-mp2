@@ -4,223 +4,143 @@
 ============================================================================ */
 
 import { loadMP2 } from "./mp2-loader.js";
-import { Detector } from "./mp2-detector.js";
-import { Recorder } from "./recorder.js";
-import { Exporter } from "./exporter.js";
+import { initMP2Detector, startDetect, stopDetect } from "./mp2-detector.js";
+import { startRecording, stopRecording } from "./recorder.js";
+import { exportZip } from "./exporter.js";
+import { fitCanvasToVideo, hookSkeletonColor } from "./draw.js";
 
-/* DOM Shortcuts */
-const $ = id => document.getElementById(id);
+const $ = (id) => document.getElementById(id);
 
-/* UI Elements */
-const fileInput      = $("file");
-const modelSel       = $("modelSel");
-const startBtn       = $("startBtn");
-const stopBtn        = $("pauseBtn");
-const recToggle      = $("recToggle");
-const saveZipBtn     = $("saveZipBtn");
-const zipNameInput   = $("zipName");
+const vid = $("video");
+const can = $("canvas");
 
-const cameraBtn      = $("cameraBtn");
-const stopCameraBtn  = $("stopCameraBtn");
+const file = $("file");
+const startBtn = $("startBtn");
+const pauseBtn = $("pauseBtn");
+const saveZipBtn = $("saveZipBtn");
+const recToggle = $("recToggle");
+const cameraBtn = $("cameraBtn");
+const stopCameraBtn = $("stopCameraBtn");
+const modelSel = $("modelSel");
 
-const fullscreenBtn  = $("fullscreenBtn");
-const fsExitBtn      = $("fsExitBtn");
+const diag = $("diag");
+const log = $("log");
+const fpsEl = $("fps");
+const framesEl = $("frames");
+const prog = $("prog");
+const tprog = $("tprog");
+const zipNameInput = $("zipName");
 
-const logBox         = $("log");
-const diag           = $("diag");
-
-const videoEl        = $("video");
-const canvasEl       = $("canvas");
-const mediaGrid      = $("mediaGrid");
-
-
-/* ============================================================================
-   LOGGING SYSTEM（與 HTML 中相同格式）
-============================================================================ */
-function say(msg, cls = "") {
-  const time = new Date().toLocaleTimeString();
-  const line = `[${time}] ${msg}\n`;
-  logBox.textContent += line;
-  logBox.scrollTop = logBox.scrollHeight;
-
+function say(msg) {
+  const line = `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+  log.textContent += line;
+  log.scrollTop = log.scrollHeight;
   diag.textContent = msg;
-  diag.className = "badge " + cls;
 }
 
-
-/* ============================================================================
-   影片上載
-============================================================================ */
-fileInput.onchange = () => {
-  const f = fileInput.files[0];
+/* ============================================================
+   FILE UPLOAD
+============================================================ */
+file.onchange = () => {
+  const f = file.files[0];
   if (!f) return;
 
-  const url = URL.createObjectURL(f);
-  videoEl.src = url;
+  vid.src = URL.createObjectURL(f);
 
-  videoEl.onloadedmetadata = () => {
-    Detector.fitCanvas(videoEl, canvasEl);
-    videoEl.play().catch(() => {});
-    say("🎞️ 影片已載入", "ok");
+  vid.onloadedmetadata = () => {
+    fitCanvasToVideo(vid, can);
+    vid.play();
+    say("🎞️ 影片就緒");
   };
 };
 
-
-/* ============================================================================
-   模型切換（lite / full / heavy）
-============================================================================ */
-modelSel.onchange = async () => {
-  say(`🔄 模型切換至 ${modelSel.value}…`, "warn");
-  await Detector.reloadModel(modelSel.value);
-  say(`✨ 模型已載入：${modelSel.value}`, "ok");
-};
-
-
-/* ============================================================================
-   START — 開始 MP2 偵測
-============================================================================ */
-startBtn.onclick = async () => {
-  if (!videoEl.src && !videoEl.srcObject) {
-    alert("請先載入影片或開啟攝像頭");
-    return;
-  }
-
-  say("🚀 準備載入 MP2 核心…", "warn");
-
-  await loadMP2(); // 確保 MP2 Loader 完全 ready
-  await Detector.init(modelSel.value);
-
-  say("▶️ 開始偵測", "ok");
-
-  // 開始錄影（可能會被 recToggle 控制）
-  Recorder.start(canvasEl, videoEl, recToggle.checked);
-
-  // 啟動偵測 loop
-  Detector.start(videoEl, canvasEl);
-};
-
-
-/* ============================================================================
-   STOP — 停止偵測 + 停止錄影
-============================================================================ */
-stopBtn.onclick = async () => {
-  say("⏸ 停止偵測", "warn");
-
-  Detector.stop();
-  await Recorder.stop();
-
-  saveZipBtn.disabled = false;
-};
-
-
-/* ============================================================================
-   ZIP 輸出
-============================================================================ */
-saveZipBtn.onclick = async () => {
-  say("📦 打包 ZIP…", "warn");
-
-  const poseLog  = Detector.poseLog;
-  const zipName  = zipNameInput.value;
-  const size     = { width: canvasEl.width, height: canvasEl.height };
-
-  await Exporter.exportZip(poseLog, zipName, size);
-
-  say("✅ ZIP 完成", "ok");
-};
-
-
-/* ============================================================================
-   CAMERA（開）
-============================================================================ */
+/* ============================================================
+   CAMERA
+============================================================ */
 cameraBtn.onclick = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
-      audio: true
+      audio: true,
     });
 
-    videoEl.srcObject = stream;
+    vid.srcObject = stream;
 
-    videoEl.onloadedmetadata = () => {
-      Detector.fitCanvas(videoEl, canvasEl);
-      videoEl.play();
-      say("📷 攝像頭已啟用", "ok");
+    vid.onloadedmetadata = () => {
+      fitCanvasToVideo(vid, can);
+      vid.play();
+      say("📷 攝像頭就緒（含音訊）");
     };
-  } catch (err) {
-    say("❌ 相機不可用：" + err.message, "err");
+  } catch (e) {
+    say("❌ 相機不可用：" + e.message);
   }
 };
 
-
-/* ============================================================================
-   CAMERA（關）
-============================================================================ */
 stopCameraBtn.onclick = () => {
-  if (videoEl.srcObject) {
-    videoEl.srcObject.getTracks().forEach(t => t.stop());
-    videoEl.srcObject = null;
-    say("📴 攝像頭已關閉", "warn");
-  } else {
-    say("⚠️ 沒有攝像頭運行", "warn");
+  if (vid.srcObject) {
+    vid.srcObject.getTracks().forEach((t) => t.stop());
+    vid.srcObject = null;
+    say("📴 攝像頭已關閉");
   }
 };
 
-
-/* ============================================================================
-   FULLSCREEN（Desktop + iOS 模擬）
-============================================================================ */
-fullscreenBtn.onclick = () => {
-  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  if (isIOS) {
-    if (!document.body.classList.contains("ios-fullscreen")) {
-      enterIOS();
-    } else {
-      exitIOS();
-    }
-    return;
-  }
-
-  // Desktop fullscreen
-  const req  = mediaGrid.requestFullscreen || mediaGrid.webkitRequestFullscreen;
-  const exit = document.exitFullscreen || document.webkitExitFullscreen;
-
-  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-    req && req.call(mediaGrid);
-  } else {
-    exit && exit.call(document);
-  }
-};
-
-fsExitBtn.onclick = () => exitIOS();
-
-
-/* ============================================================================
-   iOS fullscreen helper
-============================================================================ */
-function enterIOS() {
-  document.body.classList.add("ios-fullscreen");
-  window.scrollTo(0, 0);
-}
-
-function exitIOS() {
-  document.body.classList.remove("ios-fullscreen");
-}
-
-
-/* ============================================================================
-   自檢（載入 MP2 + 初始化模型）
-============================================================================ */
+/* ============================================================
+   SELFTEST
+============================================================ */
 $("selftestBtn").onclick = async () => {
-  logBox.textContent = "";
-  say("自檢中…", "warn");
+  log.textContent = "";
+  say("自檢中…");
 
   try {
     await loadMP2();
-    await Detector.init(modelSel.value);
-
-    say("✅ MP2 模型載入成功", "ok");
-  } catch (err) {
-    say("❌ 自檢失敗：" + err.message, "err");
+    await initMP2Detector(modelSel.value);
+    say("✅ MP2 模型載入成功");
+  } catch (e) {
+    say("❌ MP2 載入錯誤：" + e.message);
   }
+};
+
+/* ============================================================
+   START
+============================================================ */
+startBtn.onclick = async () => {
+  if (!vid.src && !vid.srcObject) {
+    alert("請先載入影片或開攝像頭");
+    return;
+  }
+
+  try {
+    await loadMP2();
+    await initMP2Detector(modelSel.value);
+
+    startDetect(vid, can, {
+      rec: recToggle.checked,
+      fpsEl,
+      framesEl,
+      prog,
+      tprog,
+      say,
+    });
+
+    if (recToggle.checked) startRecording(can, vid);
+    say("▶️ 開始");
+  } catch (e) {
+    say("❌ start 錯誤：" + e.message);
+  }
+};
+
+/* ============================================================
+   STOP
+============================================================ */
+pauseBtn.onclick = async () => {
+  stopDetect();
+  await stopRecording();
+  say("⏸ 停止");
+};
+
+/* ============================================================
+   ZIP Export
+============================================================ */
+saveZipBtn.onclick = () => {
+  exportZip(zipNameInput.value, can);
 };
