@@ -4,9 +4,10 @@
 ============================================================================ */
 
 import { loadMP2 } from "./mp2-loader.js";
-import { Detector } from "./mp2-detector.js";
+import { initMP2Detector, startDetect, stopDetect } from "./mp2-detector.js";
 import { Recorder } from "./recorder.js";
 import { Exporter } from "./exporter.js";
+
 
 /* DOM Shortcuts */
 const $ = id => document.getElementById(id);
@@ -224,3 +225,4 @@ $("selftestBtn").onclick = async () => {
     say("❌ 自檢失敗：" + err.message, "err");
   }
 };
+
