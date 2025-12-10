@@ -1,297 +1,206 @@
-/* ============================================================================
-   Boulder Skeleton — MP2 Edition
-   style.css — UI theme + layout
-============================================================================ */
+/* ==========================================================
+   🎬 Stranger Things — Theme
+   ========================================================== */
 
-/* ===========================
-   Global Theme Variables
-=========================== */
 :root {
   --bg: #050505;
   --card: #0d0d0f;
   --line: #2a2a33;
   --ink: #e6e6e6;
   --muted: #7a8a9e;
-  --accent: #d2de30;
-  --accent-glow: #f97000;
+  --accent: #d1000f;
+  --accent-glow: #ff003c;
   --cyber: #0affff;
   --side-w: 320px;
 }
 
 /* Reset */
 * { box-sizing: border-box; }
-
 body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  position: relative;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   overflow-x: hidden;
 }
 
-/* ===========================
-   VHS Scanlines + Noise Layer
-=========================== */
+/* VHS overlay */
 body::before {
   content:"";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-      to bottom,
-      rgba(255,255,255,0.05) 0px,
-      rgba(255,255,255,0.05) 1px,
-      rgba(0,0,0,0.05) 2px
+  position:fixed; inset:0;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.04) 0px,
+    rgba(255,255,255,0.04) 1px,
+    rgba(0,0,0,0.04) 2px
   );
-  opacity: .18;
-  z-index: 999;
+  pointer-events:none;
+  opacity:.18;
+  z-index:999;
 }
-
 body::after {
   content:"";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: .05;
-  z-index: 998;
-  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
-  background-size: 300px;
+  position:fixed; inset:0;
+  background-image:url('https://grainy-gradients.vercel.app/noise.svg');
+  background-size:300px;
+  opacity:.08;
+  pointer-events:none;
+  z-index:998;
 }
 
-/* ===========================
-   Header
-=========================== */
+/* Header */
 header {
   padding: 12px;
-  border-bottom: 1px solid var(--accent);
-  background: #0b0b0c;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border-bottom:1px solid var(--accent);
+  background:#0b0b0c;
 }
-
 header strong {
-  color: var(--accent);
-  text-shadow: 0 0 6px var(--accent-glow);
+  color:var(--accent);
+  text-shadow:0 0 6px var(--accent-glow);
 }
+.badge { font-size:12px; color:var(--cyber); }
 
-.badge {
-  font-size: 12px;
-  color: var(--cyber);
-  opacity: .9;
-}
+/* KPI */
+.kpi { display:flex; gap:12px; font-size:12px; color:var(--muted); }
+progress { height:10px; accent-color:var(--cyber); }
 
-.kpi {
-  display: flex;
-  gap: 12px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-progress {
-  height: 10px;
-  accent-color: var(--cyber);
-}
-
-/* ===========================
-   Layout
-=========================== */
+/* Layout */
 .layout {
-  display: grid;
+  display:grid;
   grid-template-columns: 1fr var(--side-w);
-  gap: 16px;
-  padding: 16px;
+  gap:16px;
+  padding:16px;
 }
 
-section,
-aside {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
+/* Panels */
+section, aside {
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
 }
-
 .pane-head {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--line);
-  font-weight: 600;
-  display: flex;
-  justify-content: space-between;
-  background: #0f0f12;
-  color: var(--accent);
+  padding:10px 14px;
+  border-bottom:1px solid var(--line);
+  background:#0f0f12;
+  color:var(--accent);
+  font-weight:600;
+  display:flex;
+  justify-content:space-between;
 }
-
-.pane-body {
-  padding: 12px;
-  z-index: 10;
-  position: relative;
-}
+.pane-body { padding:12px; }
 
 .row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-bottom:10px;
 }
 
-/* ===========================
-   Buttons, Inputs
-=========================== */
-button,
-input[type=file],
-select,
-input[type=text] {
-  background: #16161a;
-  border: 1px solid var(--line);
-  color: var(--ink);
-  padding: 8px 12px;
-  font-size: 13px;
-  border-radius: 10px;
-  cursor: pointer;
+/* Buttons */
+button, select, input[type=text], input[type=file] {
+  background:#16161a;
+  border:1px solid var(--line);
+  color:var(--ink);
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:13px;
+}
+button:hover, select:hover {
+  background:#1e1e23;
+  border-color:var(--accent);
+  color:var(--accent);
+  text-shadow:0 0 4px var(--accent-glow);
 }
 
-button:hover,
-select:hover {
-  background: #1e1e23;
-  border-color: var(--accent);
-  color: var(--accent);
-  text-shadow: 0 0 4px var(--accent-glow);
-}
-
+/* Upload file button */
 .fileBtn {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  background: #16161a;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  height: 33.5px;
-  padding: 0 12px;
-  flex: 1 1 auto;
-  max-width: 25%;
+  position:relative;
+  display:flex;
+  align-items:center;
+  padding:0 12px;
+  height:34px;
+  border-radius:10px;
 }
-
 .fileBtn input[type=file] {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
+  position:absolute;
+  inset:0;
+  opacity:0;
 }
 
-/* ===========================
-   Video + Canvas
-=========================== */
-video,
-canvas {
-  max-width: 100%;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: #000;
-  display: block;
+/* Media */
+video, canvas {
+  max-width:100%;
+  display:block;
+  border-radius:10px;
+  background:#000;
+  border:1px solid var(--line);
 }
 
 .media-grid {
-  display: grid;
-  gap: 10px;
-  position: relative;
-  z-index: 20;
-}
-
-.landscape .media-grid {
-  grid-template-columns: 1fr;
-  grid-template-areas:
-    "orig"
-    "overlay";
+  display:grid;
+  gap:10px;
 }
 
 .portrait .media-grid {
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas: "orig overlay";
+  grid-template-columns:1fr 1fr;
+}
+.landscape .media-grid {
+  grid-template-columns:1fr;
 }
 
-.origWrap { grid-area: orig; }
-.overlayWrap { grid-area: overlay; }
-
-/* ===========================
-   Log Panel
-=========================== */
+/* Log */
 .log {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  font-size: 11px;
-  background: #0f0f12;
-  border: 1px solid var(--line);
-  padding: 8px;
-  border-radius: 8px;
-  max-height: 200px;
-  overflow: auto;
-  color: var(--cyber);
-  white-space: pre-wrap;
-  box-shadow: 0 0 12px rgba(255, 0, 60, 0.25);
+  background:#0f0f12;
+  color:var(--cyber);
+  font-family:ui-monospace, Menlo, Consolas;
+  font-size:12px;
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:8px;
+  height:300px;
+  overflow:auto;
+  white-space:pre-wrap;
 }
 
-.ok { color: #4cffd2; }
-.warn { color: #ffd37a; }
-.err { color: #ff4d4d; }
+.ok { color:#3cffc7 !important; }
+.warn { color:#ffd37a !important; }
+.err { color:#ff4d4d !important; }
 
-/* ===========================
-   Responsive
-=========================== */
+/* Mobile */
 @media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
-  aside { order: 2; }
+  .layout { grid-template-columns:1fr; }
+  aside { order:2; }
 }
 
-/* ===========================
-   iOS Fullscreen Simulation
-=========================== */
+/* Fake iOS fullscreen */
 body.ios-fullscreen {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  z-index: 9999;
-  overflow: hidden;
+  position:fixed;
+  inset:0;
+  background:#000;
+  overflow:hidden;
 }
-
-body.ios-fullscreen .layout {
-  width: 100vw;
-  height: 100vh;
-  padding: 0;
-  margin: 0;
-}
-
-body.ios-fullscreen .media-grid {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 body.ios-fullscreen video,
 body.ios-fullscreen canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw !important;
-  height: 100vh !important;
-  object-fit: contain;
-  border: none !important;
+  width:100vw !important;
+  height:100vh !important;
+  object-fit:contain;
 }
 
 #fsExitBtn {
-  position: fixed;
-  right: 12px;
-  top: 12px;
-  z-index: 10001;
-  display: none;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: #1a1d24;
-  color: #fff;
-  border: 1px solid #2a2f3a;
+  position:fixed;
+  right:12px; top:12px;
+  z-index:9999;
+  display:none;
+  padding:10px 12px;
+  background:#1a1d24;
+  color:white;
+  border:1px solid #2a2f3a;
+  border-radius:10px;
 }
-
-body.ios-fullscreen #fsExitBtn { display: block; }
+body.ios-fullscreen #fsExitBtn { display:block; }
