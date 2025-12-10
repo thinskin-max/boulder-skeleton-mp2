@@ -1,23 +1,30 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Boulder Skeleton — MP2 Edition</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boulder Skeleton — MP2 Lite Edition</title>
 
-<link rel="stylesheet" href="./style.css" />
+<link rel="stylesheet" href="style.css">
+
+<!-- MediaPipe Tasks Vision 0.10.6 -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.6/vision_bundle.js"></script>
+
+<!-- JS modules -->
+<script type="module" src="js/ui.js"></script>
 </head>
 
 <body>
+
 <header>
-  <strong>Boulder Skeleton — MP2 Edition</strong>
+  <strong>Boulder Skeleton — MediaPipe 2 Lite</strong>
   <span class="badge" id="diag">初始化中…</span>
 
   <div class="kpi">
     <span>FPS: <b id="fps">0</b></span>
     <span>Frames: <b id="frames">0</b></span>
-    <span>進度：
-      <progress id="prog" max="1" value="0"></progress>
+    <span>
+      進度：<progress id="prog" max="1" value="0"></progress>
       <b id="tprog">0:00 / 0:00</b>
     </span>
   </div>
@@ -28,97 +35,66 @@
   <!-- LEFT PANEL -->
   <section>
     <div class="pane-head">
-      <div>1) Upload → 2) Overlay → 3) START → 4) STOP → 5) ZIP</div>
+      1) Upload → 2) 啟動 Overlay → 3) START → 4) STOP → 5) ZIP
     </div>
 
     <div class="pane-body">
 
-      <div class="row" style="margin-bottom:12px">
+      <div class="row">
         <label class="fileBtn">Upload
-          <input id="file" type="file" accept="video/*" />
+          <input id="file" type="file" accept="video/*">
         </label>
 
         <select id="modelSel">
-          <option value="lite" selected>lite（最快）</option>
-          <option value="full">full（均衡）</option>
-          <option value="heavy">heavy（最高精度）</option>
+          <option value="lite" selected>Model: lite（最快）</option>
+          <option value="full">Model: full（均衡）</option>
+          <option value="heavy">Model: heavy（最高精度）</option>
         </select>
       </div>
 
-      <div class="row" style="margin-bottom:10px">
-        <label><input id="recToggle" type="checkbox" /> 啟動 Overlay</label>
+      <div class="row">
+        <label><input id="recToggle" type="checkbox"> 啟動 Overlay</label>
 
         <button id="startBtn">START</button>
         <button id="pauseBtn">STOP</button>
 
         <button id="colorBtn">🎨 Skeleton Color</button>
-        <input type="color" id="colorPicker" value="#FFD72D" style="display:none" />
+        <input type="color" id="colorPicker" value="#FFD72D" style="display:none">
 
         <button id="fullscreenBtn">📺 全螢幕</button>
         <button id="fsExitBtn">✕ 退出</button>
       </div>
 
-      <div class="row" style="margin-bottom:8px">
-        <input id="zipName" type="text" placeholder="輸入檔名（可留空）" />
-        <button id="saveZipBtn">Download ZIP</button>
+      <div class="row">
+        <input id="zipName" type="text" placeholder="ZIP 檔名（可留空）">
+        <button id="saveZipBtn" disabled>Download ZIP</button>
       </div>
 
       <div class="row">
-        <button id="cameraBtn">開攝像頭 (for PC)</button>
+        <button id="cameraBtn">開攝像頭</button>
         <button id="stopCameraBtn">關攝像頭</button>
       </div>
 
-      <div class="media-grid" id="mediaGrid" style="margin-top:12px">
-        <div class="origWrap">
-          <video id="video" playsinline muted></video>
-        </div>
-
-        <div class="overlayWrap">
-          <canvas id="canvas"></canvas>
-        </div>
+      <div id="mediaGrid" class="media-grid">
+        <div class="origWrap"><video id="video" playsinline muted></video></div>
+        <div class="overlayWrap"><canvas id="canvas"></canvas></div>
       </div>
 
     </div>
   </section>
 
-  <!-- RIGHT PANEL -->
+  <!-- RIGHT: LOG -->
   <aside>
     <div class="pane-head">
-      <div>狀態 / 日誌</div>
+      狀態 / 日誌
       <button id="selftestBtn">自檢</button>
     </div>
     <div class="pane-body">
       <div class="log" id="log">等待輸出…</div>
     </div>
   </aside>
+
 </div>
-
-<!-- MAIN SCRIPT MODULE -->
-<script type="module">
-
-/* Import modules */
-import { loadMP2 } from "./js/mp2-loader.js";
-import { initMP2Detector, startDetect, stopDetect } from "./js/mp2-detector.js";
-import { startRecording, stopRecording } from "./js/recorder.js";
-import { exportZip } from "./js/exporter.js";
-import { drawSkeleton, hookSkeletonColor, fitCanvasToVideo } from "./js/draw.js";
-import { setupUI } from "./js/ui.js";
-
-/* Run UI init */
-setupUI({
-  loadMP2,
-  initMP2Detector,
-  startDetect,
-  stopDetect,
-  startRecording,
-  stopRecording,
-  exportZip,
-  drawSkeleton,
-  hookSkeletonColor,
-  fitCanvasToVideo
-});
-
-</script>
 
 </body>
 </html>
