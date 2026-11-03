@@ -1,63 +1,65 @@
-/* ============================================================================
-   mp2-loader.js — Load MediaPipe Tasks Vision (Lite Runtime)
-   For GitHub Pages — No WASM folder, no worker, pure JS bundle only.
-   ============================================================================ */
+/* MediaPipe Tasks Vision loader. One classic script, cached across model switches. */
 
-/*
-   You chose:
-   Q1 = Lite Runtime
-   Q2 = Lite Model
-   Q3 = Yes (use hosted bundle)
-   Q4 = Single-page
+export const MP_VERSION = "1.2.0";
 
-   Therefore we load the official bundle from jsDelivr:
-*/
-const MP2_BUNDLE_URL =
-  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.6/vision_bundle.js";
+export const MP_BUNDLE_URL =
+  `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VERSION}/vision_bundle.js`;
 
-/* 
-   Global registry — This module populates:
-   window.__mp2.FilesetResolver
-   window.__mp2.PoseLandmarker
-*/
-window.__mp2 = {
+export const MP_WASM_URL =
+  `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VERSION}/wasm`;
+
+window.__mp2 = window.__mp2 || {
   loaded: false,
   FilesetResolver: null,
   PoseLandmarker: null
 };
 
-/* ============================================================================
-   loadMP2() — dynamically load the bundle if not loaded yet
-   ============================================================================ */
-export async function loadMP2() {
-  if (window.__mp2.loaded) return true;
+let pending = null;
 
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = MP2_BUNDLE_URL;
-    script.async = true;
+function adopt(ns) {
+  if (!ns?.FilesetResolver || !ns?.PoseLandmarker) {
+    throw new Error("MediaPipe 已載入，但 PoseLandmarker 不存在");
+  }
+  window.__mp2.FilesetResolver = ns.FilesetResolver;
+  window.__mp2.PoseLandmarker = ns.PoseLandmarker;
+  window.__mp2.loaded = true;
+}
 
-    script.onload = () => {
+export function loadMP2() {
+  if (window.__mp2.loaded) return Promise.resolve(true);
+  if (pending) return pending;
+
+  pending = new Promise((resolve, reject) => {
+    const existing = window.Vision || window.vision;
+    if (existing?.FilesetResolver && existing?.PoseLandmarker) {
       try {
-        if (!window.vision) {
-          reject(new Error("MediaPipe vision_bundle.js loaded, but vision global missing"));
-          return;
-        }
-
-        window.__mp2.FilesetResolver = window.vision.FilesetResolver;
-        window.__mp2.PoseLandmarker = window.vision.PoseLandmarker;
-        window.__mp2.loaded = true;
-
+        adopt(existing);
         resolve(true);
       } catch (err) {
+        pending = null;
+        reject(err);
+      }
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = MP_BUNDLE_URL;
+    script.async = true;
+    script.onload = () => {
+      try {
+        adopt(window.Vision || window.vision);
+        resolve(true);
+      } catch (err) {
+        pending = null;
         reject(err);
       }
     };
-
     script.onerror = () => {
-      reject(new Error("Failed to load MediaPipe vision_bundle.js"));
+      pending = null;
+      reject(new Error("無法載入 MediaPipe（請檢查網絡）"));
     };
-
     document.head.appendChild(script);
   });
+
+  return pending;
 }

@@ -2,99 +2,138 @@
 <html lang="zh-HK">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Boulder Skeleton — MP2 Lite Edition</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050505">
+<title>Boulder Skeleton</title>
 <link rel="stylesheet" href="style.css">
-
-<!-- MediaPipe Tasks Vision 0.10.6 -->
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.6/vision_bundle.js"></script>
-
-<!-- JS modules -->
+<!--
+  Wix / iframe: the parent frame has to delegate device access, for example
+  <iframe src="THIS_PAGE" allow="camera; fullscreen; autoplay" allowfullscreen style="width:100%;min-height:100vh;border:0"></iframe>
+-->
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script type="module" src="js/ui.js"></script>
 </head>
-
 <body>
 
 <header>
-  <strong>Boulder Skeleton — MediaPipe 2 Lite</strong>
+  <strong>Boulder Skeleton</strong>
   <span class="badge" id="diag">初始化中…</span>
-
   <div class="kpi">
     <span>FPS: <b id="fps">0</b></span>
     <span>Frames: <b id="frames">0</b></span>
-    <span>
-      進度：<progress id="prog" max="1" value="0"></progress>
+    <span class="seek-wrap">
+      進度
+      <input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="進度">
       <b id="tprog">0:00 / 0:00</b>
     </span>
   </div>
 </header>
 
 <div class="layout">
-
-  <!-- LEFT PANEL -->
   <section>
     <div class="pane-head">
       1) Upload → 2) 啟動 Overlay → 3) START → 4) STOP → 5) ZIP
     </div>
-
     <div class="pane-body">
+      <div class="controls">
+        <div class="row">
+          <label class="fileBtn">Upload
+            <input id="file" type="file" accept="video/*">
+          </label>
+          <select id="modelSel" aria-label="模型">
+            <option value="lite" selected>Model: lite（最快）</option>
+            <option value="full">Model: full（均衡）</option>
+            <option value="heavy">Model: heavy（最高精度）</option>
+          </select>
+          <select id="smoothSel" aria-label="平滑">
+            <option value="off">平滑：關</option>
+            <option value="light">平滑：輕</option>
+            <option value="normal" selected>平滑：標準</option>
+            <option value="strong">平滑：強</option>
+          </select>
+          <select id="confSel" aria-label="置信度">
+            <option value="0.35">置信度：寬鬆</option>
+            <option value="0.5" selected>置信度：標準</option>
+            <option value="0.7">置信度：嚴格</option>
+          </select>
+        </div>
 
-      <div class="row">
-        <label class="fileBtn">Upload
-          <input id="file" type="file" accept="video/*">
-        </label>
+        <div class="row">
+          <label class="chk"><input id="recToggle" type="checkbox"> 啟動 Overlay</label>
+          <button type="button" id="startBtn" class="primary">START</button>
+          <button type="button" id="pauseBtn">STOP</button>
+          <button type="button" id="cameraBtn">開攝像頭</button>
+          <select id="facingSel" aria-label="鏡頭">
+            <option value="environment" selected>後鏡頭</option>
+            <option value="user">前鏡頭</option>
+          </select>
+          <button type="button" id="stopCameraBtn">關攝像頭</button>
+        </div>
 
-        <select id="modelSel">
-          <option value="lite" selected>Model: lite（最快）</option>
-          <option value="full">Model: full（均衡）</option>
-          <option value="heavy">Model: heavy（最高精度）</option>
-        </select>
+        <div class="row">
+          <button type="button" id="colorBtn">🎨 Skeleton Color</button>
+          <input type="color" id="colorPicker" value="#FFD72D" aria-label="Skeleton Color" hidden>
+          <button type="button" id="fullscreenBtn">📺 全螢幕</button>
+          <label class="chk"><input id="mirrorToggle" type="checkbox"> 鏡像</label>
+          <label class="chk"><input id="analysisToggle" type="checkbox" checked> 分析圖層</label>
+          <label class="chk"><input id="origToggle" type="checkbox"> 顯示原片</label>
+        </div>
+
+        <div class="row">
+          <input id="zipName" class="grow" type="text" maxlength="80" placeholder="ZIP 檔名（可留空）" aria-label="ZIP 檔名（可留空）" autocomplete="off">
+          <button type="button" id="saveZipBtn" disabled>Download ZIP</button>
+          <a id="zipLink" class="zip-link" hidden>若未開始下載，點此儲存</a>
+        </div>
       </div>
 
-      <div class="row">
-        <label><input id="recToggle" type="checkbox"> 啟動 Overlay</label>
-
-        <button id="startBtn">START</button>
-        <button id="pauseBtn">STOP</button>
-
-        <button id="colorBtn">🎨 Skeleton Color</button>
-        <input type="color" id="colorPicker" value="#FFD72D" style="display:none">
-
-        <button id="fullscreenBtn">📺 全螢幕</button>
-        <button id="fsExitBtn">✕ 退出</button>
-      </div>
-
-      <div class="row">
-        <input id="zipName" type="text" placeholder="ZIP 檔名（可留空）">
-        <button id="saveZipBtn" disabled>Download ZIP</button>
-      </div>
-
-      <div class="row">
-        <button id="cameraBtn">開攝像頭</button>
-        <button id="stopCameraBtn">關攝像頭</button>
-      </div>
+      <p id="embedHint" class="hint" hidden>若此頁嵌在 Wix／iframe，請在嵌入元件加上 allow="camera; fullscreen; autoplay"。</p>
 
       <div id="mediaGrid" class="media-grid">
-        <div class="origWrap"><video id="video" playsinline muted></video></div>
-        <div class="overlayWrap"><canvas id="canvas"></canvas></div>
+        <div class="origWrap">
+          <video id="video" playsinline webkit-playsinline muted disablepictureinpicture></video>
+        </div>
+        <div class="overlayWrap" id="stage">
+          <canvas id="canvas" width="1280" height="720"></canvas>
+          <div id="stageStatus" class="stage-status">
+            <div class="spinner" id="spinner"></div>
+            <p id="stageStatusText">初始化中…</p>
+          </div>
+          <button type="button" id="fsExitBtn">✕ 退出</button>
+        </div>
       </div>
 
+      <div class="readout" id="readout" title="關節角度優先使用 3D，原有畫面角度仍寫進 ZIP">
+        <div><span>左肘</span><b id="m-elbowL">–</b></div>
+        <div><span>右肘</span><b id="m-elbowR">–</b></div>
+        <div><span>左膝</span><b id="m-kneeL">–</b></div>
+        <div><span>右膝</span><b id="m-kneeR">–</b></div>
+        <div><span>左肩</span><b id="m-shoulderL">–</b></div>
+        <div><span>右肩</span><b id="m-shoulderR">–</b></div>
+        <div><span>左髖</span><b id="m-hipL">–</b></div>
+        <div><span>右髖</span><b id="m-hipR">–</b></div>
+        <div><span>軀幹</span><b id="m-lean">–</b></div>
+        <div id="m-support-wrap"><span>支撐</span><b id="m-support">–</b></div>
+        <div><span>上升（身位）</span><b id="m-rise">–</b></div>
+        <div><span>路徑（身位）</span><b id="m-path">–</b></div>
+        <div><span>速度（身位/秒）</span><b id="m-speed">–</b></div>
+        <div><span>偵測</span><b id="m-rate">–</b></div>
+        <div><span>追蹤</span><b id="m-track">–</b></div>
+      </div>
     </div>
   </section>
 
-  <!-- RIGHT: LOG -->
   <aside>
     <div class="pane-head">
       狀態 / 日誌
-      <button id="selftestBtn">自檢</button>
+      <button type="button" id="selftestBtn">自檢</button>
     </div>
     <div class="pane-body">
-      <div class="log" id="log">等待輸出…</div>
+      <div class="log" id="log" aria-live="polite">等待輸出…</div>
     </div>
   </aside>
-
 </div>
 
+<noscript><p class="hint">需要啟用 JavaScript。</p></noscript>
 </body>
 </html>
